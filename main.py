@@ -145,7 +145,7 @@ def listenGame():
         elif event.type == pygame.MOUSEBUTTONDOWN:
             coords = pygame.mouse.get_pos()
             for rect in BOARD.tiles:
-                if rect.rectangle.collidepoint(coords) and rect.color == WHITE:
+                if rect.rectangle.collidepoint(coords) and rect.color == WHITE and not rect.found:
                     rect.found = True
                     CORRECT.play()
                 elif rect.rectangle.collidepoint(coords) and rect.color == BLACK:
