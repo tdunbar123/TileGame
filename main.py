@@ -26,8 +26,8 @@ LEVEL = 0
 LIVES = 3
 TIMELEFT = WIDTH
 
-CORRECT = pygame.mixer.Sound(os.path.join('C:\\Users\\tdunb\\PycharmProjects\\Tiles\\Sounds','Correct.wav'))
-WRONG = pygame.mixer.Sound(os.path.join('C:\\Users\\tdunb\\PycharmProjects\\Tiles\\Sounds','Wrong.wav'))
+CORRECT = pygame.mixer.Sound(os.path.join('.\\Sounds','Correct.wav'))
+WRONG = pygame.mixer.Sound(os.path.join('.\\Sounds','Wrong.wav'))
 
 # Rectangle object is used to modify the PyGame rectangles to include color characteristics, BLACK as default
 # During game, don't draw White rectangles unless they've been clicked on which sets found to True
