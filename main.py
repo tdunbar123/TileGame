@@ -1,7 +1,7 @@
 import pygame
 import math
 import random
-import os
+import asyncio
 
 # Initialization and global variables
 pygame.init()
@@ -26,8 +26,8 @@ LEVEL = 0
 LIVES = 3
 TIMELEFT = WIDTH
 
-CORRECT = pygame.mixer.Sound(os.path.join('.\\Sounds','Correct.wav'))
-WRONG = pygame.mixer.Sound(os.path.join('.\\Sounds','Wrong.wav'))
+CORRECT = pygame.mixer.Sound('./Sounds/Correct.wav')
+WRONG = pygame.mixer.Sound('./Sounds/Wrong.wav')
 
 # Rectangle object is used to modify the PyGame rectangles to include color characteristics, BLACK as default
 # During game, don't draw White rectangles unless they've been clicked on which sets found to True
@@ -206,12 +206,13 @@ def checkGameOver():
         GAME = False
         GAMEOVER = True
 
-if __name__ == '__main__':
+async def main():
     while True:
         while NEWGAME:
             CLOCK.tick(60)
             listenHome()
             drawHome(WINDOW)
+            await asyncio.sleep(0)
         while NEWROUND:
             CLOCK.tick(60)
             listenNewRound()
@@ -219,6 +220,7 @@ if __name__ == '__main__':
             drawBoard(WINDOW)
             drawTimer(WINDOW)
             pygame.display.flip()
+            await asyncio.sleep(0)
         while GAME:
             CLOCK.tick(60)
             listenGame()
@@ -227,9 +229,14 @@ if __name__ == '__main__':
             pygame.display.flip()
             checkAllFound()
             checkGameOver()
+            await asyncio.sleep(0)
         while GAMEOVER:
             CLOCK.tick(60)
             listenEnd()
             WINDOW.fill(BLACK)
             drawEnd(WINDOW)
             pygame.display.flip()
+            await asyncio.sleep(0)
+    await asyncio.sleep(0)
+
+asyncio.run(main())
