@@ -109,6 +109,8 @@ def drawSolvedBoard(window):
 def drawHome(window):
     window.fill(BLACK)
     text = FONT.render("Click To Play", False, WHITE, None)
+    rand = FONT.render(str(random.random()))
+    window.blit(rand, (WIDTH/3.3, HEIGHT/2))
     window.blit(text, (WIDTH/3.3, HEIGHT/2.5))
     pygame.display.flip()
 
