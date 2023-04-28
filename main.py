@@ -14,9 +14,11 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tiles")
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+GRAY = (155, 155, 155)
 YELLOW = (255, 255, 0)
 RED = (255, 0, 0)
 FONT = pygame.font.SysFont('Arial', 50, True, False)
+PLAY_AGAIN_FONT = pygame.font.SysFont('Arial', 33, True, False)
 NEWGAME = True
 GAME = False
 GAMEOVER = False
@@ -27,6 +29,12 @@ BOARD = None
 LEVEL = 0
 LIVES = 3
 TIMELEFT = WIDTH
+
+PLAY_AGAIN = pygame.Rect(WIDTH/2-75, HEIGHT-100, 150, 50)
+
+# Leaderboard stuff
+INPUT_BOX = pygame.Rect(WIDTH/6, HEIGHT/1.5, 400, 50)
+LEADERBOARD_TEXT = ""
 
 CORRECT = pygame.mixer.Sound('./Sounds/Correct.wav')
 WRONG = pygame.mixer.Sound('./Sounds/Wrong.wav')
@@ -120,14 +128,61 @@ def drawHome(window):
     window.blit(text, (WIDTH/3.3, HEIGHT/2.5))
     pygame.display.flip()
 
+# Function for fetching top 3 scores from leaderboard.txt
+# Best way to do this is to split the file on the newline character then for each line split on the colon to get pairs
+# of players with their scores. Then we can sort and take the top 3 pairs and return them.
+def getTop3():
+    leaders = []
+    dict = {}
+    with open("leaderboard.txt", "r") as file:
+        text = file.readlines()
+        for line in text:
+            temp = line.split(":")
+            name = temp[0].replace(":", "")
+            score = int(temp[1])
+            dict[name] = score
+    top_3 = sorted(dict.items(), key=lambda x: x[1], reverse=True)[:3]
+    for x in top_3:
+        leaders.append(x[0] + ": " + str(x[1]))
+    return leaders
+
 # Function for drawing the end screen which shows score
 def drawEnd(window):
+    global LEADERBOARD_TEXT, INPUT_BOX, PLAY_AGAIN, PLAY_AGAIN_FONT
+    coords = pygame.mouse.get_pos()
+    leaders = getTop3()
+    leader1 = None
+    leader2 = None
+    leader3 = None
+    top3 = FONT.render("Top 3", False, (0, 255, 0), None)
+    play_again = PLAY_AGAIN_FONT.render("Play Again", False, BLACK, None)
+    if len(leaders) > 0:
+        leader1 = FONT.render(leaders[0], False, WHITE, None)
+    if len(leaders) > 1:
+        leader2 = FONT.render(leaders[1], False, WHITE, None)
+    if len(leaders) > 2:
+        leader3 = FONT.render(leaders[2], False, WHITE, None)
     gameOverText = FONT.render("Game Over!", False, WHITE, None)
     scoreText = FONT.render("Final score: " + str(LEVEL), False, WHITE, None)
-    playAgainText = FONT.render("Click To Play Again!", False, WHITE, None)
+    enterName = FONT.render("Enter Name:", False, WHITE, None)
+    pygame.draw.rect(window, WHITE, INPUT_BOX, 2)
+    if PLAY_AGAIN.collidepoint(coords):
+        pygame.draw.rect(window, GRAY, PLAY_AGAIN)
+    else:
+        pygame.draw.rect(window, WHITE, PLAY_AGAIN)
+    leaderboard_text = FONT.render(LEADERBOARD_TEXT, True, (255, 255, 255))
+    window.blit(leaderboard_text, (INPUT_BOX.x + 5, INPUT_BOX.y))
     window.blit(gameOverText, (WIDTH/3.3, HEIGHT/3))
-    window.blit(scoreText, (WIDTH/3.3, HEIGHT/2.5))
-    window.blit(playAgainText, (WIDTH/6, HEIGHT/2))
+    window.blit(scoreText, (WIDTH/3.3, HEIGHT/2.4))
+    window.blit(enterName, (WIDTH/3.3, HEIGHT/2))
+    window.blit(play_again, (PLAY_AGAIN.x + 5, PLAY_AGAIN.y))
+    if leader1:
+        window.blit(leader1, (5, 50))
+    if leader2:
+        window.blit(leader2, (5, 100))
+    if leader3:
+        window.blit(leader3, (5, 150))
+    window.blit(top3, (5, 1))
 
 # Event listener function for home screen
 def listenHome():
@@ -165,18 +220,39 @@ def listenGame():
 
 # Event listener function for end game. Actions are quit and restart
 def listenEnd():
-    global NEWROUND, GAMEOVER, BOARD, LEVEL, LIVES, BOARDSIZE, WIDTH, TIMELEFT
+    global NEWROUND, GAMEOVER, BOARD, LEVEL, LIVES, BOARDSIZE, WIDTH, TIMELEFT, LEADERBOARD_TEXT, PLAY_AGAIN
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            GAMEOVER = False
-            NEWROUND = True
-            BOARDSIZE = 3
-            LEVEL = 0
-            BOARD = createBoard(LEVEL)
-            LIVES = 3
-            TIMELEFT = WIDTH
+            coords = pygame.mouse.get_pos()
+            if PLAY_AGAIN.collidepoint(coords):
+                GAMEOVER = False
+                NEWROUND = True
+                BOARDSIZE = 3
+                LEVEL = 0
+                BOARD = createBoard(LEVEL)
+                LIVES = 3
+                TIMELEFT = WIDTH
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN and len(LEADERBOARD_TEXT) > 0:
+                # Save the text to file
+                with open("leaderboard.txt", "a") as file:
+                    file.write(LEADERBOARD_TEXT + ": " + str(LEVEL) + "\n")
+                # Reset the input box
+                LEADERBOARD_TEXT = ""
+                GAMEOVER = False
+                NEWROUND = True
+                BOARDSIZE = 3
+                LEVEL = 0
+                BOARD = createBoard(LEVEL)
+                LIVES = 3
+                TIMELEFT = WIDTH
+            elif event.key == pygame.K_BACKSPACE:
+                LEADERBOARD_TEXT = LEADERBOARD_TEXT[:-1]
+            else:
+                if len(LEADERBOARD_TEXT) < 16:
+                    LEADERBOARD_TEXT += event.unicode
 
 def updateBoardSize(level):
     global BOARDSIZE
