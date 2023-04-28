@@ -53,6 +53,7 @@ class Board:
         self.tiles = []
         size = int(math.floor(HEIGHT/boardSize))
         tempTiles = [[pygame.Rect(j * size, i * size, size-1, size-1) for j in range(boardSize)] for i in range(boardSize)]
+        random.seed(int(time.time()))
         whiteTiles = random.sample(range(boardSize * boardSize), numTiles)
 
         # Convert tempTiles into my custom Rectangle object
@@ -208,7 +209,8 @@ def checkGameOver():
         GAMEOVER = True
 
 async def main():
-    random.seed(int(time.time()))
+    seed = int(time.time())
+    random.seed(seed)
     while True:
         while NEWGAME:
             CLOCK.tick(60)
