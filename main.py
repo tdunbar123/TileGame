@@ -21,6 +21,7 @@ NEWGAME = True
 GAME = False
 GAMEOVER = False
 NEWROUND = False
+ROUNDEND = False
 BOARDSIZE = 3
 BOARD = None
 LEVEL = 0
@@ -105,6 +106,13 @@ def drawSolvedBoard(window):
             pygame.draw.rect(window, rect.color, rect.rectangle)
         pygame.draw.rect(window, WHITE, rect.rectangle, width=1)
 
+# Function for end of game to show where the player missed white tiles. These tiles will be displayed in yellow
+def drawMissedTiles(window):
+    global BOARD
+    for rect in BOARD.tiles:
+        if not rect.found and rect.color == WHITE:
+            pygame.draw.rect(window, YELLOW, rect.rectangle)
+
 # Function for drawing the home screen
 def drawHome(window):
     window.fill(BLACK)
@@ -172,25 +180,29 @@ def listenEnd():
 
 def updateBoardSize(level):
     global BOARDSIZE
-    if level%3 == 0:
+    if level % 3 == 0:
         BOARDSIZE += 1
 
 # Function for drawing a timer at the bottom of the screen as a yellow progress bar that depletes before tiles are
 # hidden. Rate variable will be how quickly the progress bar is depleted
 def drawTimer(window):
-    global NEWROUND, GAME, TIMELEFT, LEVEL, BOARDSIZE
+    global NEWROUND, GAME, TIMELEFT, LEVEL, BOARDSIZE, ROUNDEND, GAMEOVER
     TIMELEFT -= 10/((BOARDSIZE-1)+(LEVEL/5))
     pygame.draw.rect(window, YELLOW, (0, HEIGHT-10, TIMELEFT, 10))
-    if TIMELEFT <= 0:
+    if TIMELEFT <= 0 and ROUNDEND:
+        ROUNDEND = False
+        GAMEOVER = True
+    elif TIMELEFT <= 0:
         NEWROUND = False
         GAME = True
+
 
 # Function to check if all white tiles have been found to proceed to the next round
 def checkAllFound():
     global NEWROUND, GAME, LEVEL, BOARD, LIVES, TIMELEFT, WIDTH
     flag = True
     for rect in BOARD.tiles:
-        if rect.color == WHITE and rect.found == False:
+        if rect.color == WHITE and not rect.found:
             flag = False
     if flag:
         NEWROUND = True
@@ -203,10 +215,11 @@ def checkAllFound():
 
 # Function to check if your lives have expired
 def checkGameOver():
-    global LIVES, GAME, GAMEOVER
+    global LIVES, GAME, ROUNDEND, TIMELEFT, WIDTH
     if LIVES <= 0:
         GAME = False
-        GAMEOVER = True
+        ROUNDEND = True
+        TIMELEFT = WIDTH
 
 async def main():
     seed = int(time.time())
@@ -233,6 +246,15 @@ async def main():
             pygame.display.flip()
             checkAllFound()
             checkGameOver()
+            await asyncio.sleep(0)
+        while ROUNDEND:
+            CLOCK.tick(60)
+            listenNewRound()
+            WINDOW.fill(BLACK)
+            drawSolvedBoard(WINDOW)
+            drawMissedTiles(WINDOW)
+            drawTimer(WINDOW)
+            pygame.display.flip()
             await asyncio.sleep(0)
         while GAMEOVER:
             CLOCK.tick(60)
