@@ -2,6 +2,7 @@ import pygame
 import math
 import random
 import asyncio
+import time
 
 # Initialization and global variables
 pygame.init()
@@ -207,6 +208,7 @@ def checkGameOver():
         GAMEOVER = True
 
 async def main():
+    random.seed(int(time.time()))
     while True:
         while NEWGAME:
             CLOCK.tick(60)
