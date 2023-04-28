@@ -106,11 +106,9 @@ def drawSolvedBoard(window):
         pygame.draw.rect(window, WHITE, rect.rectangle, width=1)
 
 # Function for drawing the home screen
-def drawHome(window, rand):
+def drawHome(window):
     window.fill(BLACK)
     text = FONT.render("Click To Play", False, WHITE, None)
-    rand_num = FONT.render(str(rand), False, WHITE, None)
-    window.blit(rand_num, (WIDTH/3.3, HEIGHT/2))
     window.blit(text, (WIDTH/3.3, HEIGHT/2.5))
     pygame.display.flip()
 
@@ -213,12 +211,11 @@ def checkGameOver():
 async def main():
     seed = int(time.time())
     random.seed(seed)
-    rand = random.random()
     while True:
         while NEWGAME:
             CLOCK.tick(60)
             listenHome()
-            drawHome(WINDOW, rand)
+            drawHome(WINDOW)
             await asyncio.sleep(0)
         while NEWROUND:
             CLOCK.tick(60)
