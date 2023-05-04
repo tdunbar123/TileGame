@@ -190,7 +190,7 @@ def listenHome():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.FINGERDOWN:
             NEWGAME = False
             NEWROUND = True
             BOARD = createBoard(LEVEL)
@@ -207,8 +207,11 @@ def listenGame():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            coords = pygame.mouse.get_pos()
+        elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.FINGERDOWN:
+            if event.type == pygame.FINGERDOWN:
+                coords = (event.x, event.y)
+            else:
+                coords = pygame.mouse.get_pos()
             for rect in BOARD.tiles:
                 if rect.rectangle.collidepoint(coords) and rect.color == WHITE and not rect.found:
                     rect.found = True
@@ -224,8 +227,11 @@ def listenEnd():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            coords = pygame.mouse.get_pos()
+        elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.FINGERDOWN:
+            if event.type == pygame.FINGERDOWN:
+                coords = (event.x, event.y)
+            else:
+                coords = pygame.mouse.get_pos()
             if PLAY_AGAIN.collidepoint(coords):
                 GAMEOVER = False
                 NEWROUND = True
