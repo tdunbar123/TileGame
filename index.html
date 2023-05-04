@@ -176,8 +176,8 @@ async def custom_site():
         print("""
         * Waiting for media user engagement : please click/touch page *
     """)
-        while not platform.window.MM.UME:
-            await asyncio.sleep(.1)
+        # while not platform.window.MM.UME:
+        #    await asyncio.sleep(.1)
 
     # cleanup
     screen.fill( (0,0,0,0) )
@@ -242,7 +242,7 @@ config = {
     archive : "tiles",
     gui_debug : 3,
     cdn : "https://pygame-web.github.io/archives/0.7/",
-    autorun : 1,
+    autorun : 0,
     PYBUILD : "3.11"
 }
 
